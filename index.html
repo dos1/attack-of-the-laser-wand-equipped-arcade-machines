@@ -25,30 +25,54 @@
             font-size: 4vh;
             font-family: sans-serif;
         }
+        .assets {
+            display: none;
+        }
     </style>
   </head>
   <body>
     <div class="loading">Loading...</div>
-    <a-scene>
-      <a-assets timeout="16000">
+    <div class="assets">
         <canvas id="logo_canvas" width="320" height="180"></canvas>
         <canvas id="glcanvas" width="320" height="180"></canvas>
-        <video id="discovr" src="bg2.mp4" loop autoplay preload="auto" />
+    </div>
+    <a-scene>
+      <a-assets timeout="8000">
+        <video id="discovr" src="bg.mp4" preload="auto" webkit-playsinline autoplay loop></video>
         <img id="frame" src="frame.png" />
         <img id="wood" src="wood.jpg" />
         <img id="dosowisko" src="dosowisko.png" />
         <img id="buttons" src="buttons.png" />
-        <img id="hp" src="100hp.png" />
         <img id="coiner" src="coiner.png" />
-        <img id="explosion" src="explosion.gif" />
-        <img id="coin" src="coin.png" />
-        <img id="logo" src="logo.png" />
-        <audio src="dosowisko.ogg" preload="auto" />
-        <audio src="kbd.ogg" preload="auto" />
-        <audio src="key.ogg" preload="auto" />
+        <img src="coin.png" />
+        <img src="logo.png" />
+        <img src="exterminate.png" />
+        <a-asset-item src="explosion.gif" response-type="arraybuffer"></a-asset-item>
+        <a-asset-item src="dosowisko.ogg" response-type="arraybuffer"></a-asset-item>
+        <a-asset-item src="kbd.ogg" response-type="arraybuffer"></a-asset-item>
+        <a-asset-item src="key.ogg" response-type="arraybuffer"></a-asset-item>
+        <a-asset-item src="spells/1.ogg" response-type="arraybuffer"></a-asset-item>
+        <a-asset-item src="spells/2.ogg" response-type="arraybuffer"></a-asset-item>
+        <a-asset-item src="spells/3.ogg" response-type="arraybuffer"></a-asset-item>
+        <a-asset-item src="spells/4.ogg" response-type="arraybuffer"></a-asset-item>
+        <a-asset-item src="spells/5.ogg" response-type="arraybuffer"></a-asset-item>
+        <a-asset-item src="spells/6.ogg" response-type="arraybuffer"></a-asset-item>
+        <a-asset-item src="spells/7.ogg" response-type="arraybuffer"></a-asset-item>
+        <a-asset-item src="spells/8.ogg" response-type="arraybuffer"></a-asset-item>
+        <a-asset-item src="spells/9.ogg" response-type="arraybuffer"></a-asset-item>
+        <a-asset-item src="spells/10.ogg" response-type="arraybuffer"></a-asset-item>
+        <a-asset-item src="spells/11.ogg" response-type="arraybuffer"></a-asset-item>
+        <a-asset-item src="spells/12.ogg" response-type="arraybuffer"></a-asset-item>
+        <a-asset-item src="down.ogg" response-type="arraybuffer"></a-asset-item>
+        <a-asset-item src="explosions/1.ogg" response-type="arraybuffer"></a-asset-item>
+        <a-asset-item src="explosions/2.ogg" response-type="arraybuffer"></a-asset-item>
+        <a-asset-item src="explosions/3.ogg" response-type="arraybuffer"></a-asset-item>
+        <a-asset-item src="explosions/4.ogg" response-type="arraybuffer"></a-asset-item>
+        <a-asset-item src="explosions/5.ogg" response-type="arraybuffer"></a-asset-item>
         <a-asset-item src="DejaVuSansMono.ttf" response-type="arraybuffer"></a-asset-item>
         <a-asset-item src="vertex.glsl" id="vertexshader"></a-asset-item>
         <a-asset-item src="fragment.glsl" id="fragmentshader"></a-asset-item>
+        <a-asset-item src="music.ogg" response-type="arraybuffer"></a-asset-item>
       </a-assets>
 <!--      <a-box shadow="cast:true;receive:true;" position="-1 0.5 -3" rotation="0 45 0" color="#4CC3D9"></a-box>
       <a-sphere shadow="cast:true;receive:true;" position="0 1.25 -5" radius="1.25" color="#EF2D5E"></a-sphere>
@@ -59,28 +83,31 @@
       <a-box shadow="cast:true;receive:true;" position="0 1 -2" scale="0.7 0.7 0.7" color="#4CC3D9" src="#discovr"></a-box>
 -->
 
-      <a-entity position="0 9 -1.5" class="arcade collidable" id="arcade-template" mouse-listener>
-        <a-entity position="0 0.6 0">
-            <a-box position="0 0 0" width="1" height="1.2" depth="0.75" color="gray" shadow="cast:true;receive:true;"></a-box> 
+      <a-entity position="0 9 -1.5" class="arcade" id="arcade-template">
+        <a-entity position="0 0.6 0" class="machine">
+            <a-box position="0 0 0" width="1" height="1.2" depth="0.75" color="gray" gray shadow="cast:true;receive:true;"></a-box> 
 
-            <a-box position="0 0.675 0.05" width="1" height="0.15" depth="0.85" color="gray" shadow="cast:true;receive:true;"></a-box> 
+            <a-box position="0 0.675 0.05" width="1" height="0.15" depth="0.85" color="gray" gray shadow="cast:true;receive:true;"></a-box> 
 
             <a-plane position="0 0.751 0.3" rotation="-90 0 0" material="transparent: true; side: double" width="0.8" height="0.325" src="#buttons" shadow="cast:false;receive:true;"></a-plane>         
             
-            <a-box position="0 1.0625 -0.125" width="1" height="0.625" depth="0.5" color="gray" shadow="cast:true;receive:true;"></a-box> 
+            <a-box position="0 1.0625 -0.125" width="1" height="0.625" depth="0.5" color="gray" gray shadow="cast:true;receive:true;"></a-box> 
 
             <a-plane position="0 1.0625 0.126" width="1" height="0.625" src="#glcanvas" shadow="cast:false;receive:false;"></a-plane> 
 
-            <a-box position="-0.45 1.0625 0.25" width="0.1" height="0.625" depth="0.25" color="gray" shadow="cast:true;receive:true;"></a-box> 
-            <a-box position="0.45 1.0625 0.25" width="0.1" height="0.625" depth="0.25" color="gray" shadow="cast:true;receive:true;"></a-box> 
-            <a-box position="0 1.5625 0.025" width="1" height="0.375" depth="0.8" color="gray" shadow="cast:true;receive:true;"></a-box> 
+            <a-box position="-0.45 1.0625 0.25" width="0.1" height="0.625" depth="0.25" color="gray" gray shadow="cast:true;receive:true;"></a-box> 
+            <a-box position="0.45 1.0625 0.25" width="0.1" height="0.625" depth="0.25" color="gray" gray shadow="cast:true;receive:true;"></a-box> 
+            <a-box position="0 1.5625 0.025" width="1" height="0.375" depth="0.8" color="gray" gray shadow="cast:true;receive:true;"></a-box> 
 
             <a-plane position="0 1.5625 0.426" width="0.95" height="0.325" id="dos" src="#dosowisko" shadow="cast:false;receive:true;"></a-plane> 
 
-            <a-plane position="0.375 0.35 0.4" width="0.025" height="0.1" src="#coiner" class="collidable" shadow="cast:false;receive:true;" coin-listener></a-plane> 
-    
+            <a-plane position="0.375 0.35 0.4" width="0.025" height="0.1" src="#coiner" shadow="cast:false;receive:true;" coin-listener></a-plane> 
+                
+            <a-sound src="url(down.ogg)" id="audio-down" rolloffFactor="0.01" volume="3"></a-sound>
         </a-entity>
-
+        <a-plane class="explosion" visible="false" width="3" height="6" material="shader: gif; src:url(explosion.gif);transparent: true; side: double">
+            <a-sound src="url(explosions/4.ogg)" class="sound" poolSize="4" volume="1.5" rolloffFactor="0.5"></a-sound>
+        </a-plane>
       </a-entity>
 
       <a-plane position="0 2.5 -25" material="transparent: true; side: double" src="frame.png" repeat="10 1" rotation="0 0 0" width="50" height="5"></a-plane>
@@ -96,11 +123,12 @@
       
       
       
-      <a-videosphere position="0 25 0" src="#discovr" radius="100" loop webkit-playsinline autoplay></a-videosphere>
+      <a-videosphere position="0 20 0" src="#discovr" radius="100"></a-videosphere>
 
       <a-entity position="0 0 0" rotation="0 0 0" class="position">
         <a-entity position="0 0 0" rotation="0 0 0" class="screenshake">
-            <a-entity id="camera" camera-listener camera="userHeight: 1.6" look-controls wasd-controls cursor="rayOrigin: mouse" raycaster="far: 6">
+            <a-entity id="camera" camera-listener camera="userHeight: 1.6" cursor="rayOrigin: mouse" raycaster="far: 6">
+                <a-sound src="url(music.ogg)" id="music" loop="true" maxDistance="0"></a-sound>
             </a-entity>
         </a-entity>
         <a-entity laser-controls="hand: right" raycaster="far: 6" trigger-listener></a-entity>

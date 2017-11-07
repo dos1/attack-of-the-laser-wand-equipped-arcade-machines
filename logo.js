@@ -8,7 +8,9 @@
 
     var dosowisko = { enabled: true, alpha: 0, size: 5 };
 
-    var logo, coin;
+    var logo, coin, exterminate;
+
+    var started = false;
 
     var glCanvas, gl, buffer, texture;
 
@@ -97,7 +99,7 @@
   
         gl.drawArrays(gl.TRIANGLES, 0, 6);
     }
-
+    
     function main() {
         //enable_debug('debug');
         glInit();
@@ -113,6 +115,7 @@
         
         logo = load_bmp('logo.png');
         coin = load_bmp('coin.png');
+        exterminate = load_bmp('exterminate.png');
         
         samples.dosowisko = load_sample('dosowisko.ogg');
         samples.kbd = load_sample('kbd.ogg');
@@ -124,44 +127,9 @@
                 putpixel(dosowisko.checkerboard, i, j, makecol(0, 0, 0, 64));
             }
         }
-        var started = false;
         
         ready(function() {
             window.sceneApp();
-            setTimeout(function() {
-                play_sample(samples.dosowisko);
-                dosowisko.length = 1;
-                started = true;
-                
-                setTimeout(function() {
-                    if (!dosowisko.enabled) return;
-                    play_sample(samples.kbd);
-
-                    dosowisko.interval = setInterval(function() {
-                        dosowisko.length++;
-                    }, 90);
-                }, 2000);
-                
-                setTimeout(function() {
-                    if (!dosowisko.enabled) return;
-                    stop_sample(samples.kbd);
-                    clearInterval(dosowisko.interval);
-                    dosowisko.interval = null;
-                    dosowisko.length = 42;
-                }, 3500);
-
-                setTimeout(function() {
-                    if (!dosowisko.enabled) return;
-                    play_sample(samples.key);
-                    dosowisko.blank = true;
-                }, 5200);                
-                
-                setTimeout(function() {
-                    if (!dosowisko.enabled) return;
-                    dosowisko.enabled = false;
-                }, 6500);
-                
-            }, 3000);
             
             loop(function(){
                 if (started) {
@@ -188,7 +156,7 @@
                 } else {
                     draw_sprite(canvas, logo, 320/2, 180/2 + Math.sin(Date.now()/256)*10 + 5);   
                     if ((Date.now() % 1000) >= 500) {
-                        draw_sprite(canvas, coin, 320/2, 180/2);                                  
+                        draw_sprite(canvas, window.gameStarted ? exterminate : coin, 320/2, 180/2);                                  
                     }
                 }
                         
@@ -200,5 +168,39 @@
     }
 
     window.logoApp = main;
+    
+    window.startLogo = function() {
+        play_sample(samples.dosowisko);
+        dosowisko.length = 1;
+        started = true;
+        
+        setTimeout(function() {
+            if (!dosowisko.enabled) return;
+            play_sample(samples.kbd);
+
+            dosowisko.interval = setInterval(function() {
+                dosowisko.length++;
+            }, 90);
+        }, 2000);
+        
+        setTimeout(function() {
+            if (!dosowisko.enabled) return;
+            stop_sample(samples.kbd);
+            clearInterval(dosowisko.interval);
+            dosowisko.interval = null;
+            dosowisko.length = 42;
+        }, 3500);
+
+        setTimeout(function() {
+            if (!dosowisko.enabled) return;
+            play_sample(samples.key);
+            dosowisko.blank = true;
+        }, 5200);                
+        
+        setTimeout(function() {
+            if (!dosowisko.enabled) return;
+            dosowisko.enabled = false;
+        }, 6500);
+    };
 
 })();
