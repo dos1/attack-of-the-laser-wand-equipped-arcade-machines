@@ -27,33 +27,108 @@
     AFRAME.registerComponent('mouse-listener', {
         init: function () {
             var el = this.el;
+            var $parent = $(el).parent().parent();
             //$('#dos')[0].setAttribute('visible', true);
             el.addEventListener('mouseenter', function (evt) {
                 // el.setAttribute('line', "color: red; opacity: 1");
                 console.log('enter');
-                $(el).find('[gray]').attr('color', 'silver');
+                $parent.find('[gray]').attr('color', 'silver');
             });
         
             el.addEventListener('mousedown', function (evt) {
                 // el.setAttribute('line', "color: red; opacity: 1");
-                $(el).find('.explosion')[0].setAttribute('visible', 'true');
-                $(el).find('.explosion .sound')[0].components.sound.playSound();
-                $(el).find('.machine').remove();
-                setTimeout(function() { $(el).find('.explosion')[0].setAttribute('visible', 'false'); }, 1000);
-                setTimeout(function() { $(el).remove(); }, 4000);
+                $parent.find('.explosion')[0].setAttribute('visible', 'true');
+                $parent.find('.explosion .sound')[0].components.sound.playSound();
+                $parent.find('.machine').remove();
+                $parent.find('a-animation').remove();
+                setTimeout(function() { $parent.find('.explosion')[0].setAttribute('visible', 'false'); }, 1000);
+                setTimeout(function() { $parent.remove(); }, 4000);
             });
         
             el.addEventListener('mouseleave', function (evt) {
                 //el.setAttribute('line', "color: yellow; opacity: 0.3");
                 console.log('leave'); //, $(el).find('*'));
-                $(el).find('[gray]').attr('color', 'gray');
+                $parent.find('[gray]').attr('color', 'gray');
             });
         }
     });
 
+    var move = false;
+    
+    AFRAME.registerComponent('keyboard-controls', {
+        init: function () {
+            var el = this.el;
+            
+            
+            var keydown = function() {
+                move = true;
+            }
+            
+            var keyup = function() {
+                move = false;
+            }
+            
+    window.addEventListener('keydown', keydown, false);
+    window.addEventListener('keyup', keyup, false);
+
+        },
+        tick: function() {
+            if (move) {
+                var $camera = $(this.el);
+                var pos = $camera.find('.keyboard-helper')[0].object3D.getWorldPosition();
+                cameraDiff = {x: pos.x, y: 0, z: pos.z};
+            }
+        }
+    });    
+    
+    AFRAME.registerComponent('anim-listener', {
+        init: function () {
+            var el = this.el;
+
+            el.addEventListener('animationend', function (evt) {
+                if ($(evt.target).hasClass("anim2")) {
+                    el.emit('jump2');
+                }
+                if ($(evt.target).hasClass("spawn")) {
+                    $(evt.target).parent().find('.touchsound')[0].components.sound.playSound();
+                    $(el).find('> a-entity')[0].emit('jump');
+                    $(el).find('.machine')[0].emit('jump');
+                }
+                if ($(evt.target).hasClass("jump2") && $(el).hasClass('machine')) {
+                    console.log('jumped');
+                    setTimeout(function() {
+                        var $arcade = $(el).parent().parent().parent();
+                        var pos = $arcade.find('.anim-position')[0].object3D.getWorldPosition();
+                        $arcade.find('.anim-position')[0].setAttribute('position', '0 0 0');
+                        $arcade[0].setAttribute('position', pos);
+                        
+                        
+/*                        var pos = $(el).parent().parent().parent()[0].getAttribute('position');
+                        var rot = $(el).parent().parent().parent()[0].getAttribute('rotation');
+                        console.log(rot);
+                        pos = new THREE.Vector3(pos.x, pos.y, pos.z);
+                        rot = new THREE.Vector3(rot.x, rot.y, rot.z);
+                        var vec = new THREE.Vector3(0, 0, -1);
+                        vec = vec.applyAxisAngle(new THREE.Vector3(1,0,0), rot.x);
+                        vec = vec.applyAxisAngle(new THREE.Vector3(0,1,0), rot.y);
+                        vec = vec.applyAxisAngle(new THREE.Vector3(0,0,1), rot.z);
+                        $(el).parent().parent().parent()[0].setAttribute('position', pos.add(vec));
+                        $(el).parent().parent().parent().find('.anim-position')[0].setAttribute('position', '0 0 0');
+
+//                        $(el).parent()
+  */                      
+                        $(el).parent()[0].emit('jump');
+                        el.emit('jump');
+                    }, 1000);
+                }
+            });
+        }
+    });
+    
     AFRAME.registerComponent('coin-listener', {
         init: function () {
             var el = this.el;
+            var $parent = $(el).parent().parent();
 
             el.addEventListener('mouseenter', function (evt) {
                 console.log('enter');
@@ -63,15 +138,22 @@
             el.addEventListener('mousedown', function (evt) {
                 console.log('start');
                 if (!gameHasStarted) {
-                    $(el).parent().parent()[0].setAttribute('position', "0 0 -1.75");
-                    $(el).parent().parent().find('.explosion')[0].setAttribute('visible', 'true');
-                    $(el).parent().parent().find('.explosion .sound')[0].components.sound.playSound();
-                    $(el).parent().parent().find('.machine')[0].setAttribute('visible', 'false');
+                    $parent[0].setAttribute('position', "0 0 -0.5");
+                    $parent.find('.explosion')[0].setAttribute('visible', 'true');
+                    $parent.find('.explosion .sound')[0].components.sound.playSound();
+                    $parent.find('.machine')[0].setAttribute('visible', 'false');
+                    console.log( $parent.find('.wand')[0]);
                     gameHasStarted = true;
                     gameHasSetup = false;
                     window.gameStarted = true;
                     $('#music')[0].components.sound.playSound();
-                    setTimeout(function() { $(el).parent().parent().find('.explosion')[0].setAttribute('visible', 'false'); }, 1000);
+                    setTimeout(function() { $parent.find('.explosion')[0].setAttribute('visible', 'false'); }, 1000);
+            
+
+/*
+                    $(el).parent().parent()[0].emit('move');
+                    $(el).parent()[0].emit('jump');
+            */
                 }
 
                 
@@ -127,7 +209,8 @@
         document.querySelector('a-scene').addEventListener('enter-vr', function () {
 //        $('.screenshake').attr('position', '0 0 0');
             vr=true;
-            $('#camera')[0].setAttribute('wasd-controls', '');
+            //$('#camera')[0].setAttribute('wasd-controls', '');
+            $('#camera')[0].setAttribute('keyboard-controls', '');
             $('#camera')[0].setAttribute('look-controls', '');
         });
 
@@ -148,8 +231,8 @@
             shake = setInterval(function() {
                 $('.screenshake').attr('position', Math.random()/8.0 + ' ' + Math.random()/8.0 + ' ' + Math.random()/8.0);
                 shakeCount++;
-                if (shakeCount > 42) {
-                $('.screenshake').attr('position', '0 0 0');
+                if (shakeCount > 32) {
+                    $('.screenshake').attr('position', '0 0 0');
                     clearInterval(shake);
                 }
             }, 10);
@@ -256,6 +339,18 @@
             //    console.log(cameraDiff);
                 if (vr) {
                     $('.position').attr('position', cameraDiff.x + ' ' + cameraDiff.y + ' ' + cameraDiff.z);
+                    if (cameraDiff.x > 25) {
+                        cameraDiff.x = 25;
+                    }
+                    if (cameraDiff.x < -25) {
+                        cameraDiff.x = -25;
+                    }
+                    if (cameraDiff.z > 25) {
+                        cameraDiff.z = 25;
+                    }
+                    if (cameraDiff.z < -25) {
+                        cameraDiff.z = -25;
+                    }
                 }
                 // speech enabled
                     
@@ -263,16 +358,23 @@
                 if (gameHasStarted) {
                     if (!gameHasSetup) {
                         gameHasSetup = true;
-                        setInterval(function() {
+                        function spawn() {
                             var clone = $('#arcade-template').clone();
                             clone.attr('id', '');
-                            clone.attr('mouse-listener', '');
-                            clone.attr('position', (Math.random()*20-10) + ' 0 ' + (Math.random()*20-10));
-                            clone.find('.machine').attr('rotation', '0 ' + Math.random()*360 + ' 0').attr('visible','true');
+                            clone.attr('position', (Math.random()*48-24) + ' 0 ' + (Math.random()*48-24));
+                            clone.attr('rotation', '0 ' + Math.random()*360 + ' 0').attr('visible','true');
+                            clone.find('.wand').attr('visible', 'true');
                             clone.find('.explosion').attr('visible', 'false');
                             clone.find('.explosion .sound').attr('src', 'url(explosions/'+Math.ceil(Math.random()*5)+'.ogg)');
+                            clone.find('.bounding').addClass('clickable').attr('mouse-listener', '');
+                            clone.find('> a-entity').attr('position', '0 100 0');
                             clone.appendTo($('a-scene'));
-                        }, 2000);
+                            setTimeout(function() {
+                                clone.find('> a-entity')[0].emit('spawn');
+                            }, 0);
+                        }
+                        spawn();
+                        setInterval(spawn, 5000);
                     }
                 }  
             }
