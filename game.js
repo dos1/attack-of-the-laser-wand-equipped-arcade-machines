@@ -133,6 +133,7 @@
             el.addEventListener('mouseenter', function (evt) {
                 console.log('enter');
                 el.setAttribute('color', 'yellow');
+                $(el).find('.c')[0].setAttribute('visible', 'true');
             });
     
             el.addEventListener('mousedown', function (evt) {
@@ -163,6 +164,7 @@
                 //el.setAttribute('line', "color: yellow; opacity: 0.3");
                 console.log('leave'); //, $(el).find('*'));
                 el.setAttribute('color', '');
+                $(el).find('.c')[0].setAttribute('visible', 'false');
             });
         }
     });
