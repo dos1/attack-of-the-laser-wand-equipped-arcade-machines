@@ -134,14 +134,14 @@
             loop(function(){
                 if (started) {
                     counter+=2;
-                    dosowisko.alpha+=4;
+                    dosowisko.alpha+=6;
                     dosowisko.size-=0.16;
                     if (counter % 30 === 0) dosowisko.cursor = !dosowisko.cursor;
                 }
                         
                 if (!frame) frame = requestAnimationFrame(draw);
 
-            },BPS_TO_TIMER(30));
+            }, BPS_TO_TIMER(30));
 
             var draw = function() {
                 frame = 0;

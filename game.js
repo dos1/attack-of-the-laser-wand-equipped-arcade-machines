@@ -8,7 +8,6 @@
     var cameraDiff = new THREE.Vector3(0,0,0);
     
     var gameHasStarted = false;
-    var gameHasSetup = false;
 
     AFRAME.registerComponent('trigger-listener', {
         init: function () {
@@ -16,17 +15,20 @@
             //$('#dos')[0].setAttribute('visible', true);
             el.addEventListener('triggerdown', function (evt) {
                 el.setAttribute('line', "color: red; opacity: 1");
-                console.log('down');
+                //console.log('down');
             });
             el.addEventListener('triggerup', function (evt) {
                 el.setAttribute('line', "color: yellow; opacity: 0.3");
-                console.log('up'); //, $(el).find('*'));
+                //console.log('up'); //, $(el).find('*'));
             });
         }
     });
 
     AFRAME.registerComponent('yes-this-is-awful-code', {
-        tick: function() { if (window.gameFrame) window.gameFrame(); }
+        tick: function() {
+            if (window.gameFrame) window.gameFrame(); 
+            this.el.sceneEl.canvas.classList.remove('a-grab-cursor');
+        }
     });
     
     AFRAME.registerComponent('mouse-listener', {
@@ -36,8 +38,9 @@
             //$('#dos')[0].setAttribute('visible', true);
             el.addEventListener('mouseenter', function (evt) {
                 // el.setAttribute('line', "color: red; opacity: 1");
-                console.log('enter');
+                //console.log('enter');
                 $parent.find('[gray]').attr('color', 'silver');
+            document.body.classList.add('a-pointing');
             });
         
             el.addEventListener('mousedown', function (evt) {
@@ -52,33 +55,73 @@
         
             el.addEventListener('mouseleave', function (evt) {
                 //el.setAttribute('line', "color: yellow; opacity: 0.3");
-                console.log('leave'); //, $(el).find('*'));
+                //console.log('leave'); //, $(el).find('*'));
                 $parent.find('[gray]').attr('color', 'gray');
+            document.body.classList.remove('a-pointing');
             });
         }
     });
 
-    var move = false;
+    var move = false, turnleft = false, turnright = false;
     
     AFRAME.registerComponent('keyboard-controls', {
         init: function () {
             var el = this.el;
+            var component = this;
+            component.move = false;
+            component.turnleft = false;
+            component.turnright = false;
+            component.mouseX = 0;
+            component.mouseY = 0;
             
-            
-            var keydown = function() {
-                move = true;
+/*
+down w 87
+down s 83
+down a 65
+down d 68
+down ArrowUp 38
+down ArrowDown 40
+down ArrowLeft 37
+down ArrowRight 39
+*/            
+            var keydown = function(ev) {
+                //console.log('down', ev.key, ev.keyCode);
+                if ((ev.key == 'w') || (ev.keyCode == 87) || (ev.key == 'ArrowUp') || (ev.keyCode == 38) || (ev.key == ' ') || (ev.keyCode == 32)) {
+                    component.move = true;
+                }
+                if ((ev.key == 'a') || (ev.keyCode == 65) || (ev.key == 'ArrowLeft') || (ev.keyCode == 37)) {
+                    component.turnleft = true;
+                }
+                if ((ev.key == 'd') || (ev.keyCode == 68) || (ev.key == 'ArrowRight') || (ev.keyCode == 39)) {
+                    component.turnright = true;
+                }
             }
             
-            var keyup = function() {
-                move = false;
+            var keyup = function(ev) {
+                if ((ev.key == 'w') || (ev.keyCode == 87) || (ev.key == 'ArrowUp') || (ev.keyCode == 38) || (ev.key == ' ') || (ev.keyCode == 32))                      {
+                    component.move = false;
+                }
+                if ((ev.key == 'a') || (ev.keyCode == 65) || (ev.key == 'ArrowLeft') || (ev.keyCode == 37)) {
+                    component.turnleft = false;
+                }
+                if ((ev.key == 'd') || (ev.keyCode == 68) || (ev.key == 'ArrowRight') || (ev.keyCode == 39)) {
+                    component.turnright = false;
+                }
+            }
+            
+            var mousemove = function(ev) {
+                component.mouseX = ev.clientX;
+                component.mouseY = ev.clientY;
             }
             
     window.addEventListener('keydown', keydown, false);
     window.addEventListener('keyup', keyup, false);
+    window.addEventListener('mousemove', mousemove, false);
 
         },
         tick: function(time, timedelta) {
-            if (move) {
+            var component = this;
+            if (component.move) {
                 var $camera = $(this.el);
                 var obj = $camera.find('.keyboard-helper')[0].object3D;
                 obj.position.z = -timedelta / 250;
@@ -102,6 +145,24 @@
                 }
 
             }
+            if (component.turnleft) {
+                //var $camera = $(this.el);
+                
+                var rot = $('.rotation')[0].getAttribute('rotation');
+                rot = new THREE.Vector3(rot.x, rot.y, rot.z);
+                rot = rot.add(new THREE.Vector3(0, timedelta / 10, 0));
+                $('.rotation')[0].setAttribute('rotation', rot);
+            }
+            if (component.turnright) {
+                //var $camera = $(this.el);
+                
+                var rot = $('.rotation')[0].getAttribute('rotation');
+                rot = new THREE.Vector3(rot.x, rot.y, rot.z);
+                rot = rot.add(new THREE.Vector3(0, -timedelta / 10, 0));
+                $('.rotation')[0].setAttribute('rotation', rot);
+            }
+            
+            $('#camera')[0].components.cursor.onMouseMove({type:'mousemove', clientX: component.mouseX, clientY: component.mouseY});
         }
     });    
     
@@ -122,7 +183,7 @@
                     $(el).parent().find('.touchsound')[0].components.sound.playSound();
                 }    
                 if ($(evt.target).hasClass("jump2") && $(el).hasClass('machine')) {
-                    console.log('jumped');
+                    //console.log('jumped');
                     setTimeout(function() {
                         var $arcade = $(el).parent().parent().parent();
                         var pos = $arcade.find('.anim-position')[0].object3D.getWorldPosition();
@@ -158,25 +219,45 @@
             var $parent = $(el).parent().parent();
 
             el.addEventListener('mouseenter', function (evt) {
-                console.log('enter');
+                //console.log('enter');
                 el.setAttribute('color', 'yellow');
                 $(el).find('.c')[0].setAttribute('visible', 'true');
+            document.body.classList.add('a-pointing');
             });
     
             el.addEventListener('mousedown', function (evt) {
-                console.log('start');
+                //console.log('start');
                 if (!gameHasStarted) {
                     $parent[0].setAttribute('position', "0 0 -0.5");
                     $parent.find('.explosion')[0].setAttribute('visible', 'true');
                     $parent.find('.explosion .sound')[0].components.sound.playSound();
                     $parent.find('.machine')[0].setAttribute('visible', 'false');
-                    console.log( $parent.find('.wand')[0]);
+                    //console.log( $parent.find('.wand')[0]);
                     gameHasStarted = true;
-                    gameHasSetup = false;
                     window.gameStarted = true;
                     $('#music')[0].components.sound.playSound();
                     setTimeout(function() { $parent.find('.explosion')[0].setAttribute('visible', 'false'); }, 1000);
             
+                    
+                        function spawn() {
+                            var clone = $('#arcade-template').clone();
+                            clone.attr('id', '');
+                            clone.attr('position', (Math.random()*48-24) + ' 0 ' + (Math.random()*48-24));
+                            clone.attr('rotation', '0 ' + Math.random()*360 + ' 0').attr('visible','true');
+                            clone.find('.wand').attr('visible', 'true');
+                            clone.find('.explosion').attr('visible', 'false');
+                            clone.find('.explosion .sound').attr('src', 'url(explosions/'+Math.ceil(Math.random()*5)+'.ogg)');
+                            clone.find('.bounding').addClass('clickable').attr('mouse-listener', '');
+                            clone.find('> a-entity').attr('position', '0 100 0');
+                            clone.appendTo($('a-scene'));
+                            setTimeout(function() {
+                                clone.find('> a-entity')[0].emit('spawn');
+                            }, 0);
+                        }
+                        spawn();
+                        setInterval(spawn, 5000);
+
+                    
 
 /*
                     $(el).parent().parent()[0].emit('move');
@@ -189,9 +270,10 @@
     
             el.addEventListener('mouseleave', function (evt) {
                 //el.setAttribute('line', "color: yellow; opacity: 0.3");
-                console.log('leave'); //, $(el).find('*'));
+                //console.log('leave'); //, $(el).find('*'));
                 el.setAttribute('color', '');
                 $(el).find('.c')[0].setAttribute('visible', 'false');
+            document.body.classList.remove('a-pointing');
             });
         }
     });
@@ -257,7 +339,7 @@
             vr=true;
         $('.position').attr('position', '0 0 0');
         $('.position').attr('rotation', '0 0 0');
-                    $('.screenshake').attr('position', '0 0 0');
+//                    $('.screenshake').attr('position', '0 0 0');
             //$('#camera')[0].setAttribute('wasd-controls', '');
             $('#camera')[0].setAttribute('keyboard-controls', '');
             $('#camera')[0].setAttribute('look-controls', '');
@@ -270,6 +352,7 @@
         });
     });
 
+    var lastshake = 0;
 
     function sceneApp() {
 
@@ -278,9 +361,9 @@
         function screenShake() {
             var shakeCount = 0;
             shake = setInterval(function() {
-                if (!vr) {
+                //if (!vr) {
                     $('.screenshake').attr('position', Math.random()/8.0 + ' ' + Math.random()/8.0 + ' ' + Math.random()/8.0);
-                }
+                //}
                 shakeCount++;
                 if (shakeCount > 32) {
                     $('.screenshake').attr('position', '0 0 0');
@@ -318,14 +401,27 @@
                     $('.position').attr('rotation', Math.max(0, (val>0.0001) ? Math.sqrt(val,2) : 0 ) * 90 +' 0 0');
                 }
 
-                if (t-start >= 3000) {
-                    setTimeout(function() {
+                if (t-start >= 3200) {
+//                    setTimeout(function() {
                         window.startLogo();
-                    }, 200);
-                    screenShake();
+  //                  }, 200);
+                                        
+                    
                     touched = true;
                 }
-            } else {
+            } 
+                
+            if (t-start >= 3000) {                    
+                if (t-start <= 3800) {
+                    if (t-lastshake > 50) {
+                        $('.screenshake').attr('position', Math.random()/8.0 + ' ' + Math.random()/8.0 + ' ' + Math.random()/8.0);
+                        lastshake = t;
+                    }
+                } else {
+                    $('.screenshake').attr('position', '0 0 0');
+                }
+            
+
                 
                 if (!speechEnabled) {
                     var time = (t-start)/1000 - 3;
@@ -335,58 +431,7 @@
                     }
                     
                     if (t-start >= 9000) {
-                        // enable speech
-                        /*
-                        var SpeechRecognition = SpeechRecognition || webkitSpeechRecognition
-            var SpeechGrammarList = SpeechGrammarList || webkitSpeechGrammarList
-            var SpeechRecognitionEvent = SpeechRecognitionEvent || webkitSpeechRecognitionEvent
-
-            var spells = [ 'insert coin', 'alohomora', 'alohamora', 'seicento', 'flipendo', 'rictusempra', 'onomatopoeia', 'leviosa', 'wingardium leviosa', 'lumos', 'spongify'];
-            var grammar = '#JSGF V1.0; grammar spells; public <spell> = ' + spells.join(' | ') + ' ;'
-
-            var recognition = new SpeechRecognition();
-            var speechRecognitionList = new SpeechGrammarList();
-            speechRecognitionList.addFromString(grammar, 1);
-            recognition.grammars = speechRecognitionList;
-            recognition.continuous = true;
-            recognition.lang = 'en-US';
-            recognition.interimResults = true;
-            recognition.maxAlternatives = 1;
-
-            recognition.start();
-
-            recognition.onresult = function(event) {
-            // The SpeechRecognitionEvent results property returns a SpeechRecognitionResultList object
-            // The SpeechRecognitionResultList object contains SpeechRecognitionResult objects.
-            // It has a getter so it can be accessed like an array
-            // The [last] returns the SpeechRecognitionResult at the last position.
-            // Each SpeechRecognitionResult object contains SpeechRecognitionAlternative objects that contain individual results.
-            // These also have getters so they can be accessed like arrays.
-            // The [0] returns the SpeechRecognitionAlternative at position 0.
-            // We then return the transcript property of the SpeechRecognitionAlternative object
-
-            var last = event.results.length - 1;
-            var result = event.results[last][0].transcript;
-            console.log(result, 'Confidence: ' + event.results[0][0].confidence);
-            
-            if (result.trim() == 'insert coin') {
-                $('#arcade-template').attr('position', '9999 9999 9999');
-                gameStarted = true;
-            }
-            }
-
-            recognition.onspeechend = function() {
-            recognition.stop();
-            }
-
-            recognition.onnomatch = function(event) {
-            //diagnostic.textContent = "I didn't recognise that color.";
-            }
-
-            recognition.onerror = function(event) {
-            //  diagnostic.textContent = 'Error occurred in recognition: ' + event.error;
-            }
-                        */
+                       
                         
                         speechEnabled = true;
                     }
@@ -410,28 +455,6 @@
                 // speech enabled
                     
                 
-                if (gameHasStarted) {
-                    if (!gameHasSetup) {
-                        gameHasSetup = true;
-                        function spawn() {
-                            var clone = $('#arcade-template').clone();
-                            clone.attr('id', '');
-                            clone.attr('position', (Math.random()*48-24) + ' 0 ' + (Math.random()*48-24));
-                            clone.attr('rotation', '0 ' + Math.random()*360 + ' 0').attr('visible','true');
-                            clone.find('.wand').attr('visible', 'true');
-                            clone.find('.explosion').attr('visible', 'false');
-                            clone.find('.explosion .sound').attr('src', 'url(explosions/'+Math.ceil(Math.random()*5)+'.ogg)');
-                            clone.find('.bounding').addClass('clickable').attr('mouse-listener', '');
-                            clone.find('> a-entity').attr('position', '0 100 0');
-                            clone.appendTo($('a-scene'));
-                            setTimeout(function() {
-                                clone.find('> a-entity')[0].emit('spawn');
-                            }, 0);
-                        }
-                        spawn();
-                        setInterval(spawn, 5000);
-                    }
-                }  
             }
             //window.requestAnimationFrame(frame);
         }

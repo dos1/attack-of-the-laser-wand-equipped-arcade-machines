@@ -29,6 +29,38 @@
         .assets {
             display: none;
         }
+        .a-pointing canvas { cursor: pointer; }
+        .a-enter-vr-button {
+  animation: 4s ease-out 12s waggle;
+  animation-iteration-count: infinite;
+}
+@keyframes waggle {
+  0% {
+    transform: none;
+  }
+  12.5% {
+    transform: rotateZ(-20deg) scale(1.2);
+  }
+  15% {
+    transform: rotateZ(25deg) scale(1.2);
+  }
+  16.875% {
+    transform: rotateZ(-15deg) scale(1.2);
+  }
+  18.75% {
+    transform: rotateZ(15deg) scale(1.2);
+  }
+  20.625% {
+    transform: rotateZ(-12deg) scale(1.2);
+  }
+  21.25% {
+    transform: rotateZ(0) scale(1.2);
+  }
+  25%, 100% {
+    transform: rotateZ(0) scale(1);
+  }
+}
+
     </style>
   </head>
   <body>
@@ -180,14 +212,16 @@
       <a-videosphere position="0 20 0" src="#discovr" radius="100"></a-videosphere>
 
       <a-entity position="0 0 0" rotation="0 0 0" class="position">
-        <a-entity position="0 0 0" rotation="0 0 0" class="screenshake">
-            <a-entity id="camera" camera-listener camera="userHeight: 1.6" cursor="rayOrigin: mouse" raycaster="far: 6; objects: .clickable">
-                <a-sound position="0 0 -0.1" src="url(music.ogg)" id="music" loop="true" sound="rolloffFactor:0"></a-sound>
-                <a-entity class="keyboard-helper" position="0 0 -0.25">
+        <a-entity position="0 0 0" rotation="0 0 0" class="rotation">
+            <a-entity position="0 0 0" rotation="0 0 0" class="screenshake">
+                <a-entity id="camera" camera-listener camera="userHeight: 1.6" cursor="rayOrigin: mouse; fuseTimeout: 1000" raycaster="far: 6; objects: .clickable">
+                    <a-sound position="0 0 -0.1" src="url(music.ogg)" id="music" loop="true" sound="rolloffFactor:0"></a-sound>
+                    <a-entity class="keyboard-helper" position="0 0 -0.25">
+                    </a-entity>
                 </a-entity>
             </a-entity>
+            <a-entity laser-controls="hand: right" raycaster="far: 6; objects: .clickable" trigger-listener></a-entity>
         </a-entity>
-        <a-entity laser-controls="hand: right" raycaster="far: 6; objects: .clickable" trigger-listener></a-entity>
       </a-entity>
 
     </a-scene>
