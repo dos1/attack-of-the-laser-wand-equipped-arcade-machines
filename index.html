@@ -37,7 +37,7 @@
         <canvas id="logo_canvas" width="320" height="180"></canvas>
         <canvas id="glcanvas" width="320" height="180"></canvas>
     </div>
-    <a-scene>
+    <a-scene yes-this-is-awful-code>
       <a-assets timeout="8000">
         <video id="discovr" src="bg.mp4" preload="auto" webkit-playsinline autoplay loop></video>
         <img id="frame" src="frame.png" />
@@ -160,10 +160,10 @@
                     </a-plane> 
                     
 
-                    <a-sound src="url(down.ogg)" id="audio-down" rolloffFactor="0.01" volume="3"></a-sound>
+                    <a-sound src="url(down.ogg)" id="audio-down" sound="rolloffFactor: 0.25" volume="1"></a-sound>
                 </a-entity>
                 <a-plane class="explosion" look-at="#camera" visible="false" width="3" height="6" material="shader: gif; src:url(explosion.gif);transparent: true; side: double">
-                    <a-sound src="url(explosions/4.ogg)" class="sound" poolSize="4" volume="1.5" rolloffFactor="0.5"></a-sound>
+                    <a-sound src="url(explosions/4.ogg)" class="sound" volume="1" sound="poolSize:4; rolloffFactor:0.5"></a-sound>
                 </a-plane>
             </a-entity>
         </a-entity>
@@ -182,8 +182,9 @@
       <a-entity position="0 0 0" rotation="0 0 0" class="position">
         <a-entity position="0 0 0" rotation="0 0 0" class="screenshake">
             <a-entity id="camera" camera-listener camera="userHeight: 1.6" cursor="rayOrigin: mouse" raycaster="far: 6; objects: .clickable">
-                <a-sound src="url(music.ogg)" id="music" loop="true" maxDistance="0"></a-sound>
-                <a-entity class="keyboard-helper" position="0 0 -0.25"></a-entity>
+                <a-sound position="0 0 -0.1" src="url(music.ogg)" id="music" loop="true" sound="rolloffFactor:0"></a-sound>
+                <a-entity class="keyboard-helper" position="0 0 -0.25">
+                </a-entity>
             </a-entity>
         </a-entity>
         <a-entity laser-controls="hand: right" raycaster="far: 6; objects: .clickable" trigger-listener></a-entity>

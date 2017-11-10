@@ -1,5 +1,7 @@
 (function() {
 
+    const BOUNDARY = 24.5;
+    
     window.gameStarted = false;
     
     var cameraPos = {x:0, y:0, z:0 };
@@ -23,7 +25,10 @@
         }
     });
 
-
+    AFRAME.registerComponent('yes-this-is-awful-code', {
+        tick: function() { if (window.gameFrame) window.gameFrame(); }
+    });
+    
     AFRAME.registerComponent('mouse-listener', {
         init: function () {
             var el = this.el;
@@ -72,11 +77,30 @@
     window.addEventListener('keyup', keyup, false);
 
         },
-        tick: function() {
+        tick: function(time, timedelta) {
             if (move) {
                 var $camera = $(this.el);
-                var pos = $camera.find('.keyboard-helper')[0].object3D.getWorldPosition();
+                var obj = $camera.find('.keyboard-helper')[0].object3D;
+                obj.position.z = -timedelta / 250;
+                var pos = obj.getWorldPosition();
                 cameraDiff = {x: pos.x, y: 0, z: pos.z};
+                
+                                if (vr) {
+                    if (cameraDiff.x > BOUNDARY) {
+                        cameraDiff.x = BOUNDARY;
+                    }
+                    if (cameraDiff.x < -BOUNDARY) {
+                        cameraDiff.x = -BOUNDARY;
+                    }
+                    if (cameraDiff.z > BOUNDARY) {
+                        cameraDiff.z = BOUNDARY;
+                    }
+                    if (cameraDiff.z < -BOUNDARY) {
+                        cameraDiff.z = -BOUNDARY;
+                    }
+                    $('.position').attr('position', cameraDiff.x + ' ' + cameraDiff.y + ' ' + cameraDiff.z);
+                }
+
             }
         }
     });    
@@ -94,6 +118,9 @@
                     $(el).find('> a-entity')[0].emit('jump');
                     $(el).find('.machine')[0].emit('jump');
                 }
+                if ($(evt.target).hasClass("jump") && $(el).hasClass('anim-position')) {
+                    $(el).parent().find('.touchsound')[0].components.sound.playSound();
+                }    
                 if ($(evt.target).hasClass("jump2") && $(el).hasClass('machine')) {
                     console.log('jumped');
                     setTimeout(function() {
@@ -173,6 +200,7 @@
     AFRAME.registerComponent("camera-listener", {
         schema: {},
         tick: function() {
+            if (move) return;
             var newcameraPos = this.el.components.camera.camera.parent.position;
             var rot = this.el.components.camera.camera.parent.rotation;
             
@@ -201,6 +229,23 @@
 //		   console.log(cameraPos.z - newcameraPos.z);
 //		}
             cameraPos = {x:newcameraPos.x, y:newcameraPos.y, z:newcameraPos.z};
+            
+                            if (vr) {
+                    if (cameraDiff.x > BOUNDARY) {
+                        cameraDiff.x = BOUNDARY;
+                    }
+                    if (cameraDiff.x < -BOUNDARY) {
+                        cameraDiff.x = -BOUNDARY;
+                    }
+                    if (cameraDiff.z > BOUNDARY) {
+                        cameraDiff.z = BOUNDARY;
+                    }
+                    if (cameraDiff.z < -BOUNDARY) {
+                        cameraDiff.z = -BOUNDARY;
+                    }
+                    $('.position').attr('position', cameraDiff.x + ' ' + cameraDiff.y + ' ' + cameraDiff.z);
+                }
+
         }
     });
 	
@@ -209,8 +254,10 @@
     $(function() {
 
         document.querySelector('a-scene').addEventListener('enter-vr', function () {
-//        $('.screenshake').attr('position', '0 0 0');
             vr=true;
+        $('.position').attr('position', '0 0 0');
+        $('.position').attr('rotation', '0 0 0');
+                    $('.screenshake').attr('position', '0 0 0');
             //$('#camera')[0].setAttribute('wasd-controls', '');
             $('#camera')[0].setAttribute('keyboard-controls', '');
             $('#camera')[0].setAttribute('look-controls', '');
@@ -231,7 +278,9 @@
         function screenShake() {
             var shakeCount = 0;
             shake = setInterval(function() {
-                $('.screenshake').attr('position', Math.random()/8.0 + ' ' + Math.random()/8.0 + ' ' + Math.random()/8.0);
+                if (!vr) {
+                    $('.screenshake').attr('position', Math.random()/8.0 + ' ' + Math.random()/8.0 + ' ' + Math.random()/8.0);
+                }
                 shakeCount++;
                 if (shakeCount > 32) {
                     $('.screenshake').attr('position', '0 0 0');
@@ -265,7 +314,9 @@
             }
             if (!touched) {
                 var val =  (10*(9-((t-start)/1000)*3)/90);
-                $('.screenshake').attr('rotation', Math.max(0, (val>0.0001) ? Math.sqrt(val,2) : 0 ) * 90 +' 0 0');
+                if (!vr) {
+                    $('.position').attr('rotation', Math.max(0, (val>0.0001) ? Math.sqrt(val,2) : 0 ) * 90 +' 0 0');
+                }
 
                 if (t-start >= 3000) {
                     setTimeout(function() {
@@ -279,7 +330,9 @@
                 if (!speechEnabled) {
                     var time = (t-start)/1000 - 3;
                 
-                    $('.position').attr('position', '0 0 -' + Math.min(1, Math.pow(time/3, 2))*0.8);
+                    if (!vr) {
+                        $('.position').attr('position', '0 0 -' + Math.min(1, Math.pow(time/3, 2))*0.8);
+                    }
                     
                     if (t-start >= 9000) {
                         // enable speech
@@ -339,8 +392,7 @@
                     }
                 } 
             //    console.log(cameraDiff);
-                if (vr) {
-                    $('.position').attr('position', cameraDiff.x + ' ' + cameraDiff.y + ' ' + cameraDiff.z);
+/*                if (vr) {
                     if (cameraDiff.x > 25) {
                         cameraDiff.x = 25;
                     }
@@ -353,7 +405,8 @@
                     if (cameraDiff.z < -25) {
                         cameraDiff.z = -25;
                     }
-                }
+                    $('.position').attr('position', cameraDiff.x + ' ' + cameraDiff.y + ' ' + cameraDiff.z);
+                }*/
                 // speech enabled
                     
                 
@@ -380,10 +433,11 @@
                     }
                 }  
             }
-            window.requestAnimationFrame(frame);
+            //window.requestAnimationFrame(frame);
         }
 
-        window.requestAnimationFrame(frame);
+        window.gameFrame = frame;
+        //window.requestAnimationFrame(frame);
     }
     
     window.sceneApp = sceneApp;
