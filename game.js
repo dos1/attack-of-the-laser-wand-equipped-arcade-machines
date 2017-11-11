@@ -2,6 +2,8 @@
 
     const BOUNDARY = 24.5;
     
+    var score = 0;
+    
     window.gameStarted = false;
     
     var cameraPos = {x:0, y:0, z:0 };
@@ -44,9 +46,57 @@
             });
         
             el.addEventListener('mousedown', function (evt) {
+                if ($(el).hasClass('restart')) {
+                 
+                    $('#arcade-template .explosion .sound')[0].components.sound.playSound();
+                    $('#arcade-template .explosion')[0].setAttribute('visible', 'true');
+                    //console.log( $parent.find('.wand')[0]);
+                    gameHasStarted = true;
+                    window.gameStarted = true;
+                    window.killed = false;
+                    $('#music')[0].components.sound.playSound();
+                    setTimeout(function() { $parent.parent().parent().find('.explosion')[0].setAttribute('visible', 'false'); }, 1000);
+            score = 0;
+                    
+                        function spawn() {
+                            var clone = $('#arcade-template').clone();
+                            clone.attr('id', '');
+                            clone.attr('position', (Math.random()*48-24) + ' 0 ' + (Math.random()*48-24));
+                            clone.attr('rotation', '0 ' + Math.random()*360 + ' 0').attr('visible','true');
+                            clone.find('.wand').attr('visible', 'true');
+                            clone.find('.explosion').attr('visible', 'false');
+                            clone.find('.explosion .sound').attr('src', 'url(explosions/'+Math.ceil(Math.random()*5)+'.ogg)');
+                            clone.find('.spell-sound').attr('src', 'url(spells/'+Math.ceil(Math.random()*12)+'.ogg)');
+                            clone.find('.bounding').addClass('clickable').attr('mouse-listener', '');
+                            clone.find('> a-entity').attr('position', '0 100 0');
+                            clone.appendTo($('#enemies'));
+                            setTimeout(function() {
+                                clone.find('> a-entity')[0].emit('spawn');
+                            }, 0);
+                        }
+                        spawn();
+                        window.spawnInterval = setInterval(spawn, 5000);
+
+                    
+                                                                $('.rotation')[0].setAttribute('rotation', '0 0 0');
+                                        cameraDiff = {x:0, y: 0, z: 0};
+                                        var o = $('#camera')[0].object3D;
+                                        o.position.x = 0;
+                                        o.position.y = 0;
+                                        o.position.z = 0;
+                                        o.rotation.x = 0;
+                                        o.rotation.y = 0;
+                                        o.rotation.z = 0;
+                        
+                    return;
+                }
+                
                 // el.setAttribute('line', "color: red; opacity: 1");
+                $parent.parent().parent().attr('killed', 'true');
                 $parent.parent().parent().find('.explosion')[0].setAttribute('visible', 'true');
                 $parent.parent().parent().find('.explosion .sound')[0].components.sound.playSound();
+                score++;
+                $parent.parent().parent().find('.explosion .text')[0].setAttribute('text', 'value:'+score);
                 $parent.find('.machine').remove();
                 $parent.find('a-animation').remove();
                 setTimeout(function() { $parent.parent().parent().find('.explosion')[0].setAttribute('visible', 'false'); }, 1000);
@@ -120,6 +170,9 @@ down ArrowRight 39
 
         },
         tick: function(time, timedelta) {
+            
+            if (window.killed) return;
+            
             var component = this;
             if (component.move) {
                 var $camera = $(this.el);
@@ -170,22 +223,8 @@ down ArrowRight 39
         init: function () {
             var el = this.el;
 
-            el.addEventListener('animationend', function (evt) {
-                if ($(evt.target).hasClass("anim2")) {
-                    el.emit('jump2');
-                }
-                if ($(evt.target).hasClass("spawn")) {
-                    $(evt.target).parent().find('.touchsound')[0].components.sound.playSound();
-                    $(el).find('> a-entity')[0].emit('jump');
-                    $(el).find('.machine')[0].emit('jump');
-                }
-                if ($(evt.target).hasClass("jump") && $(el).hasClass('anim-position')) {
-                    $(el).parent().find('.touchsound')[0].components.sound.playSound();
-                }    
-                if ($(evt.target).hasClass("jump2") && $(el).hasClass('machine')) {
-                    //console.log('jumped');
-                    
-                        var $arcade = $(el).parent().parent().parent();
+            function rotate(el) {
+                                     var $arcade = $(el).parent().parent().parent();
                         var pos = $arcade.find('.anim-position')[0].object3D.getWorldPosition();
                         $arcade.find('.anim-position')[0].setAttribute('position', '0 0 0');
                         $arcade[0].setAttribute('position', pos);
@@ -213,7 +252,25 @@ down ArrowRight 39
                         animation.setAttribute("easing","linear");
                         animation.setAttribute("class","rotate");
                         el.parentNode.parentNode.appendChild(animation);
-
+   
+            }
+            
+            el.addEventListener('animationend', function (evt) {
+                if ($(evt.target).hasClass("anim2")) {
+                    el.emit('jump2');
+                }
+                if ($(evt.target).hasClass("spawn")) {
+                    $(evt.target).parent().find('.touchsound')[0].components.sound.playSound();
+                    $(el).find('> a-entity')[0].emit('jump');
+                    $(el).find('.machine')[0].emit('jump');
+                }
+                if ($(evt.target).hasClass("jump") && $(el).hasClass('anim-position')) {
+                    $(el).parent().find('.touchsound')[0].components.sound.playSound();
+                }    
+                if ($(evt.target).hasClass("jump2") && $(el).hasClass('machine')) {
+                    //console.log('jumped');
+                    
+                        rotate(el);
 //                    anim.setAttribute('from', '0 ' + (oldrot.y/Math.PI * 180) + ' 0');
   //                  anim.setAttribute('to', '0 ' + (rot.y/Math.PI * 180) + ' 0');
                 }
@@ -235,9 +292,68 @@ down ArrowRight 39
                         $(el).parent().parent().parent().find('.anim-position')[0].setAttribute('position', '0 0 0');
 
 //                        $(el).parent()
-  */                      
-                        $(el).find('.anim-position')[0].emit('jump');
-                        $(el).find('.machine')[0].emit('jump');
+  */                    
+
+
+                        // check for extermination
+                        var pos = el.object3D.getWorldPosition();
+                        var camerapos = $('#camera')[0].object3D.getWorldPosition();
+                        
+//                        pos = new THREE.Vector3(pos.x, pos.y, pos.z);
+  //                      camerapos = new THREE.Vector3(camerapos.x, camerapos.y, camerapos.z);
+                        
+                        var distance = pos.sub(camerapos).length();
+                        
+                        //console.log(distance);
+                        
+                        if (distance <= 6) {
+                            $(el).parent().find('.spell-sound')[0].components.sound.playSound();
+                            $(el).parent().attr('killed', 'false');
+                            
+                            $(el).find('.wand a-cylinder').attr('color', 'red');
+                            $(el).find('.wand [line]').attr('visible', 'false');
+                            
+                            setTimeout(function() {
+                                var pos = el.object3D.getWorldPosition();
+                                var camerapos = $('#camera')[0].object3D.getWorldPosition();
+                                var distance = pos.sub(camerapos).length();
+
+                                if (distance <= 6) {
+                                    if ($(el).parent().attr('killed') == 'false') {
+                                        //alert('KILL!');
+                                        $('.rotation')[0].setAttribute('rotation', '0 0 0');
+                                        cameraDiff = {x:0, y: -2000, z: 0};
+                                        var o = $('#camera')[0].object3D;
+                                        $('.score').attr('text', 'value:Your score: ' + score);
+                                        o.position.x = 0;
+                                        o.position.y = 0;
+                                        o.position.z = 0;
+                                        o.rotation.x = 0;
+                                        o.rotation.y = 0;
+                                        o.rotation.z = 0;
+                                        $('#music')[0].components.sound.stopSound();
+                                        $('#enemies > *').remove();
+                                        $('#bigexplosion')[0].components.sound.playSound();
+                                        
+                                        if (window.spawnInterval) {
+                                            clearInterval(window.spawnInterval);
+                                            window.spawnInterval = null;
+                                        }
+                                        
+                                        window.killed = true;
+
+                                    }
+                                } else {
+                                    $(el).find('.wand a-cylinder').attr('color', 'brown');
+                                    $(el).find('.wand [line]').attr('visible', 'true');
+                                    rotate($(el).find('.machine'));
+                                }
+                            }, 1000);
+                        } else {                      
+                            // no extermination planned, jump
+                            $(el).find('.anim-position')[0].emit('jump');
+                            $(el).find('.machine')[0].emit('jump');
+                        }
 //                    }, 1000);
                 }
             });
@@ -278,15 +394,16 @@ down ArrowRight 39
                             clone.find('.wand').attr('visible', 'true');
                             clone.find('.explosion').attr('visible', 'false');
                             clone.find('.explosion .sound').attr('src', 'url(explosions/'+Math.ceil(Math.random()*5)+'.ogg)');
+                            clone.find('.spell-sound').attr('src', 'url(spells/'+Math.ceil(Math.random()*12)+'.ogg)');
                             clone.find('.bounding').addClass('clickable').attr('mouse-listener', '');
                             clone.find('> a-entity').attr('position', '0 100 0');
-                            clone.appendTo($('a-scene'));
+                            clone.appendTo($('#enemies'));
                             setTimeout(function() {
                                 clone.find('> a-entity')[0].emit('spawn');
                             }, 0);
                         }
                         spawn();
-                        setInterval(spawn, 5000);
+                        window.spawnInterval = setInterval(spawn, 5000);
 
                     
 
@@ -313,7 +430,6 @@ down ArrowRight 39
     AFRAME.registerComponent("camera-listener", {
         schema: {},
         tick: function() {
-            if (move) return;
             var newcameraPos = this.el.components.camera.camera.parent.position;
             var rot = this.el.components.camera.camera.parent.rotation;
             

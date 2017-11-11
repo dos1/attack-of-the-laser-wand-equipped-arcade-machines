@@ -70,7 +70,7 @@
         <canvas id="glcanvas" width="320" height="180"></canvas>
     </div>
     <a-scene yes-this-is-awful-code>
-      <a-assets timeout="8000">
+      <a-assets timeout="5000">
         <video id="discovr" src="bg.mp4" preload="auto" webkit-playsinline autoplay loop></video>
         <img id="frame" src="frame.png" />
         <img id="wood" src="wood.jpg" />
@@ -146,7 +146,8 @@
                 <a-entity position="0 0.6 0" class="machine" anim-listener>
                     
                     
-                    
+                        <a-sound src="url(spells/1.ogg)" class="spell-sound" volume="3" sound="poolSize:4; rolloffFactor:0.25"></a-sound>
+
                         <a-animation attribute="position" dur="1000"
                         from="0 0.6 0" to="0 1.5 0"
                         begin="jump" easing="ease-in-back" repeat="1" direction="alternate">
@@ -170,7 +171,7 @@
 
                     <a-box position="0 0.675 0.05" width="1" height="0.15" depth="0.85" color="gray" gray shadow="cast:true;receive:true;"></a-box> 
                     
-                    <a-entity position="-0.45 0.675 0.475" class="wand" visible="false">
+                    <a-entity position="-0.45 0.675 0.475" class="wand" look-at="" visible="false">
                         <a-animation attribute="rotation" dur="2000"
                         from="-45 0 0" to="45 0 0"
                         repeat="indefinite" easing="ease-in-out" direction="alternate"></a-animation>
@@ -195,7 +196,7 @@
                     <a-box position="0.45 1.0625 0.25" width="0.1" height="0.625" depth="0.25" color="gray" gray shadow="cast:true;receive:true;"></a-box> 
                     <a-box position="0 1.5625 0.025" width="1" height="0.375" depth="0.8" color="gray" gray shadow="cast:true;receive:true;"></a-box> 
 
-                    <a-plane position="0 1.5625 0.426" width="0.95" height="0.325" src="#dosowisko" shadow="cast:false;receive:true;"></a-plane> 
+                    <a-plane position="0 1.5625 0.4265" width="0.95" height="0.325" src="#dosowisko" shadow="cast:false;receive:true;"></a-plane> 
 
                     <a-plane position="0.375 0.35 0.3751" width="0.025" height="0.1" src="#coiner" shadow="cast:false;receive:true;" class="clickable" coin-listener>
                         <a-cylinder class="c" color="yellow" height="0.00175" radius="0.025" position="0 0 0" rotation="0 0 90" visible="false"></a-cylinder>
@@ -205,7 +206,8 @@
                 </a-entity>
             </a-entity>
         </a-entity>
-        <a-plane class="explosion" look-at="#camera" visible="false" width="3" height="6" material="shader: gif; src:url(explosion.gif);transparent: true; side: double">
+        <a-plane class="explosion" look-at="#camera" visible="false" width="3" height="6" material="shader: gif; src:url(explosion.gif);transparent: true;">
+            <a-entity text="" position="1.5 3 0.01" class="text" visible="false"></a-entity>
             <a-sound src="url(explosions/4.ogg)" class="sound" volume="1" sound="poolSize:4; rolloffFactor:0.5"></a-sound>
         </a-plane>
       </a-entity>
@@ -219,12 +221,23 @@
       
       
       <a-videosphere position="0 20 0" src="#discovr" radius="100"></a-videosphere>
+      
+      <a-box color="black" material="side: double; shader: flat" width="100" height="100" depth="100" position="0 -2000 0">
+        <a-entity position="0 1.8 -0.5">
+          <a-entity text="value:You are kill!" position="0 0 0"></a-entity>
+          <a-entity text="value:Your score: NaN" class="score" position="0 -0.1 0"></a-entity>
+          <a-entity text="value: Play again:" position="0 -0.3 0"></a-entity>
+          <a-box color="gray" class="restart clickable" position="-0.1 -0.3 0" width="0.1" height="0.1" depth="0.1" mouse-listener gray>
+          </a-box>
+        </a-entity>
+      </a-box>
 
       <a-entity position="0 0 0" rotation="0 0 0" class="position">
         <a-entity position="0 0 0" rotation="0 0 0" class="rotation">
             <a-entity position="0 0 0" rotation="0 0 0" class="screenshake">
                 <a-entity id="camera" camera-listener camera="userHeight: 1.6" cursor="rayOrigin: mouse; fuseTimeout: 1000" raycaster="far: 6; objects: .clickable">
                     <a-sound position="0 0 -0.1" src="url(music.ogg)" id="music" loop="true" sound="rolloffFactor:0"></a-sound>
+                    <a-sound position="0 0 -0.1" src="url(explosions/2.ogg)" id="bigexplosion" sound="rolloffFactor:0"></a-sound>
                     <a-entity class="keyboard-helper" position="0 0 -0.25">
                     </a-entity>
                 </a-entity>
@@ -232,6 +245,8 @@
             <a-entity laser-controls="hand: right" raycaster="far: 6; objects: .clickable" trigger-listener></a-entity>
         </a-entity>
       </a-entity>
+      
+      <a-entity id="enemies"></a-entity>
 
     </a-scene>
     
