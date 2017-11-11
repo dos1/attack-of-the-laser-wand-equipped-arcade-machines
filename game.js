@@ -45,11 +45,11 @@
         
             el.addEventListener('mousedown', function (evt) {
                 // el.setAttribute('line', "color: red; opacity: 1");
-                $parent.find('.explosion')[0].setAttribute('visible', 'true');
-                $parent.find('.explosion .sound')[0].components.sound.playSound();
+                $parent.parent().parent().find('.explosion')[0].setAttribute('visible', 'true');
+                $parent.parent().parent().find('.explosion .sound')[0].components.sound.playSound();
                 $parent.find('.machine').remove();
                 $parent.find('a-animation').remove();
-                setTimeout(function() { $parent.find('.explosion')[0].setAttribute('visible', 'false'); }, 1000);
+                setTimeout(function() { $parent.parent().parent().find('.explosion')[0].setAttribute('visible', 'false'); }, 1000);
                 setTimeout(function() { $parent.remove(); }, 4000);
             });
         
@@ -184,11 +184,42 @@ down ArrowRight 39
                 }    
                 if ($(evt.target).hasClass("jump2") && $(el).hasClass('machine')) {
                     //console.log('jumped');
-                    setTimeout(function() {
+                    
                         var $arcade = $(el).parent().parent().parent();
                         var pos = $arcade.find('.anim-position')[0].object3D.getWorldPosition();
                         $arcade.find('.anim-position')[0].setAttribute('position', '0 0 0');
                         $arcade[0].setAttribute('position', pos);
+
+                    
+                    $(el).parent().parent().find('a-animation.rotate').remove();
+
+/*                    <a-animation attribute="rotation" dur="1000" delay="500"
+                        from="0 0 0" to="0 0 0"
+                        begin="rotate" repeat="0" easing="linear" fill="both" class="rotate">
+                        </a-animation>*/
+
+                                        
+                    var oldrot = el.parentNode.parentNode.object3D.rotation;
+                    var rot = $(el).parent().parent().parent().find('.explosion')[0].object3D.rotation;
+//                    var anim = $(el).find('a-animation.rotate')[0];
+
+
+                        var animation = document.createElement("a-animation");
+                        animation.setAttribute("attribute","rotation");
+                        animation.setAttribute("from",'0 ' + (oldrot.y/Math.PI * 180) + ' 0');
+                        animation.setAttribute("to",'0 ' + ((rot.y)/Math.PI * 180) + ' 0');
+                        animation.setAttribute("dur","1000");
+                        animation.setAttribute("delay","500");
+                        animation.setAttribute("easing","linear");
+                        animation.setAttribute("class","rotate");
+                        el.parentNode.parentNode.appendChild(animation);
+
+//                    anim.setAttribute('from', '0 ' + (oldrot.y/Math.PI * 180) + ' 0');
+  //                  anim.setAttribute('to', '0 ' + (rot.y/Math.PI * 180) + ' 0');
+                }
+                if ($(evt.target).hasClass("rotate") && $(el).hasClass('anim-rotation')) {
+
+//                    setTimeout(function() {
                         
                         
 /*                        var pos = $(el).parent().parent().parent()[0].getAttribute('position');
@@ -205,9 +236,9 @@ down ArrowRight 39
 
 //                        $(el).parent()
   */                      
-                        $(el).parent()[0].emit('jump');
-                        el.emit('jump');
-                    }, 1000);
+                        $(el).find('.anim-position')[0].emit('jump');
+                        $(el).find('.machine')[0].emit('jump');
+//                    }, 1000);
                 }
             });
         }
@@ -229,14 +260,14 @@ down ArrowRight 39
                 //console.log('start');
                 if (!gameHasStarted) {
                     $parent[0].setAttribute('position', "0 0 -0.5");
-                    $parent.find('.explosion')[0].setAttribute('visible', 'true');
-                    $parent.find('.explosion .sound')[0].components.sound.playSound();
+                    $parent.parent().parent().find('.explosion')[0].setAttribute('visible', 'true');
+                    $parent.parent().parent().find('.explosion .sound')[0].components.sound.playSound();
                     $parent.find('.machine')[0].setAttribute('visible', 'false');
                     //console.log( $parent.find('.wand')[0]);
                     gameHasStarted = true;
                     window.gameStarted = true;
                     $('#music')[0].components.sound.playSound();
-                    setTimeout(function() { $parent.find('.explosion')[0].setAttribute('visible', 'false'); }, 1000);
+                    setTimeout(function() { $parent.parent().parent().find('.explosion')[0].setAttribute('visible', 'false'); }, 1000);
             
                     
                         function spawn() {

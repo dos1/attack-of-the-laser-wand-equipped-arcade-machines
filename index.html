@@ -123,19 +123,29 @@
       <a-plane position="-25 2.5 0" rotation="0 -90 0" material="transparent: true; side: double" src="frame.png" repeat="10 1" width="50" height="5"></a-plane>
 
       <a-entity position="0 9 -1.5" class="arcade" id="arcade-template">
-        <a-entity anim-listener class="aggregated-position">
+        <a-entity anim-listener class="anim-rotation">
             <a-animation class="spawn" attribute="position" dur="2000"
                     from="0 100 0" to="0 0 0"
                     begin="spawn" easing="ease-in" fill="both">
                     </a-animation>
-            <a-sound src="url(touch.ogg)" class="touchsound" poolSize="1" volume="5" rolloffFactor="0.5"></a-sound>
+            <a-sound src="url(touch.ogg)" class="touchsound" sound="poolSize:4; rolloffFactor:0.75" volume="5"></a-sound>
 
+            <a-animation attribute="rotation" dur="1000" delay="500"
+                from="0 0 0" to="0 0 0"
+                begin="rotate" repeat="0" easing="linear" fill="both" class="rotate">
+                </a-animation>
+            
+            
             <a-entity anim-listener class="anim-position">
                 <a-animation attribute="position" dur="1500" delay="500"
                         from="0 0 0" to="0 0 1"
                         begin="jump" repeat="0" easing="linear" fill="both" class="jump">
                         </a-animation>
+
+                        
                 <a-entity position="0 0.6 0" class="machine" anim-listener>
+                    
+                    
                     
                         <a-animation attribute="position" dur="1000"
                         from="0 0.6 0" to="0 1.5 0"
@@ -189,16 +199,15 @@
 
                     <a-plane position="0.375 0.35 0.3751" width="0.025" height="0.1" src="#coiner" shadow="cast:false;receive:true;" class="clickable" coin-listener>
                         <a-cylinder class="c" color="yellow" height="0.00175" radius="0.025" position="0 0 0" rotation="0 0 90" visible="false"></a-cylinder>
-                    </a-plane> 
-                    
+                    </a-plane>
 
                     <a-sound src="url(down.ogg)" id="audio-down" sound="rolloffFactor: 0.25" volume="1"></a-sound>
                 </a-entity>
-                <a-plane class="explosion" look-at="#camera" visible="false" width="3" height="6" material="shader: gif; src:url(explosion.gif);transparent: true; side: double">
-                    <a-sound src="url(explosions/4.ogg)" class="sound" volume="1" sound="poolSize:4; rolloffFactor:0.5"></a-sound>
-                </a-plane>
             </a-entity>
         </a-entity>
+        <a-plane class="explosion" look-at="#camera" visible="false" width="3" height="6" material="shader: gif; src:url(explosion.gif);transparent: true; side: double">
+            <a-sound src="url(explosions/4.ogg)" class="sound" volume="1" sound="poolSize:4; rolloffFactor:0.5"></a-sound>
+        </a-plane>
       </a-entity>
       
       
